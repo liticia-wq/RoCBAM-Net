@@ -86,6 +86,18 @@ Where $p_i \in [0, 1]$ represents the predicted probability, $t_i \in \{0, 1\}$ 
 | **RoCBAM-Net** | $\sigma = 0.05$ | 0.545 / 0.632 | **Epoch 25** | 0.867 | **0.767** | Stopped (Epoch 33) |
 
 ---
+## 🖼️ Qualitative Segmentation Results
+
+The visualization below illustrates the progressive noise resistance of the RoCBAM-Net variants across increasing levels of Rician noise corruption ($\sigma = 0.00$ to $\sigma = 0.06$):
+
+<p align="center">
+  <img src="assets/visualisation_patient_ideal.jpg" alt="RoCBAM-Net Qualitative Segmentation Results" width="85%">
+</p>
+
+### Key Observations:
+* **RoCBAM-Net-A1 (Clean):** Delivers optimal segmentation performance on baseline MRI slices ($\sigma \le 0.01$, Dice $\approx 0.944$).
+* **RoCBAM-Net-A2 ($\sigma = 0.03$):** Takes over at moderate noise levels ($\sigma = 0.02 - 0.03$), maintaining high dice scores ($\approx 0.934$) where baseline models collapse.
+* **RoCBAM-Net-A3 ($\sigma = 0.05$):** Demonstrates extreme noise invariance under severe degradation ($\sigma = 0.04 - 0.06$), maintaining high precision (Dice $\ge 0.958$).
 
 ## 📂 Repository Structure
 
