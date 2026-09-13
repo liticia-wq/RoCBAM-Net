@@ -65,15 +65,6 @@ Where $p_i \in [0, 1]$ represents the predicted probability, $t_i \in \{0, 1\}$ 
 
 ---
 
-## ⚙️ Hyperparameters & Training Protocol
-
-* **Optimizer:** Adam ($\eta_0 = 10^{-3}$)
-* **Learning Rate Scheduler:** `ReduceLROnPlateau` ($\gamma = 0.2$, patience = 3 epochs)
-* **Early Stopping:** Triggered after 8 epochs without validation improvement
-* **Checkpointing:** Saves the model state yielding the highest Validation Dice Score
-
----
-
 ## 📈 Experimental Dynamics Summary
 
 | Architecture | Noise Regime | Init. Dice (Train/Val) | Best Epoch | Train Dice | Val Dice | Status |
@@ -86,24 +77,27 @@ Where $p_i \in [0, 1]$ represents the predicted probability, $t_i \in \{0, 1\}$ 
 | **RoCBAM-Net** | $\sigma = 0.05$ | 0.545 / 0.632 | **Epoch 25** | 0.867 | **0.767** | Stopped (Epoch 33) |
 
 ---
+
 ## 🖼️ Qualitative Segmentation Results
 
 The visualization below illustrates the progressive noise resistance of the RoCBAM-Net variants across increasing levels of Rician noise corruption ($\sigma = 0.00$ to $\sigma = 0.06$):
 
 <p align="center">
-  <img src="assets/visualisation_patient_ideal.png" alt="RoCBAM-Net Qualitative Segmentation Results" width="85%">
+  <img src="assets/visualisation_patient_ideal.jpg" alt="RoCBAM-Net Qualitative Segmentation Results" width="85%">
 </p>
 
 ### Key Observations:
 * **RoCBAM-Net-A1 (Clean):** Delivers optimal segmentation performance on baseline MRI slices ($\sigma \le 0.01$, Dice $\approx 0.944$).
 * **RoCBAM-Net-A2 ($\sigma = 0.03$):** Takes over at moderate noise levels ($\sigma = 0.02 - 0.03$), maintaining high dice scores ($\approx 0.934$) where baseline models collapse.
 * **RoCBAM-Net-A3 ($\sigma = 0.05$):** Demonstrates extreme noise invariance under severe degradation ($\sigma = 0.04 - 0.06$), maintaining high precision (Dice $\ge 0.958$).
-  
+
+---
+
 ## 🛡️ Robustness Analysis & Adaptive Clinical Strategy
 
 ### Clinical Stress-Testing Across Noise Regimes ($\sigma \in [0.00, 0.06]$)
 
-Evaluating performance across 3,753 test images reveals distinct operational limits for models trained on varying noise distributions[cite: 1]:
+Evaluating performance across 3,753 test images reveals distinct operational limits for models trained on varying noise distributions:
 
 | Test Noise ($\sigma$) | RobU-Net (Clean) | RoCBAM-Net (Clean) | RobU-Net ($\sigma=0.03$) | RoCBAM-Net ($\sigma=0.03$) | RobU-Net ($\sigma=0.05$) | RoCBAM-Net ($\sigma=0.05$) |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -120,30 +114,37 @@ Evaluating performance across 3,753 test images reveals distinct operational lim
 </p>
 
 #### Core Insights:
-1. **Clean-Model Degradation:** Clean-trained models experience structural degradation beyond $\sigma = 0.02$, collapsing near $\sigma = 0.04$[cite: 1].
-2. **High-Noise Generalization:** Models trained under severe noise ($\sigma = 0.05$) preserve clinical utility ($\text{Dice} > 0.70$) across an extended spectrum ($\sigma \in [0.04, 0.06]$)[cite: 1].
-3. **Architectural Resilience:** At extreme degradation ($\sigma = 0.04$), clean RobU-Net drops to $0.121$, whereas RoCBAM-Net ($\sigma = 0.05$) retains $0.768$ Dice[cite: 1].
+1. **Clean-Model Degradation:** Clean-trained models experience structural degradation beyond $\sigma = 0.02$, collapsing near $\sigma = 0.04$.
+2. **High-Noise Generalization:** Models trained under severe noise ($\sigma = 0.05$) preserve clinical utility ($\text{Dice} > 0.70$) across an extended spectrum ($\sigma \in [0.04, 0.06]$).
+3. **Architectural Resilience:** At extreme degradation ($\sigma = 0.04$), clean RobU-Net drops to $0.121$, whereas RoCBAM-Net ($\sigma = 0.05$) retains $0.768$ Dice.
 
 ---
 
 ### Dynamic Multi-Model Routing & Clinical Safety Guardrail
 
-No single model maintains optimal spatial accuracy across all acquisition qualities[cite: 1]. An automated routing system dynamically switches inference modules based on an estimated noise parameter $\sigma_{\text{est}}$[cite: 1]:
+No single model maintains optimal spatial accuracy across all acquisition qualities. An automated routing system dynamically switches inference modules based on an estimated noise parameter $\sigma_{\text{est}}$:
 
 <p align="center">
   <img src="assets/2.jpg" alt="Adaptive Global System and Robustness Envelope" width="90%">
 </p>
 
-* **RoCBAM-Net-A1 ($\sigma \in [0.00, 0.02[$):** Preserves high-frequency vascular boundaries on standard scans ($\text{Dice} \approx 0.78$)[cite: 1].
-* **RoCBAM-Net-A2 ($\sigma \in [0.02, 0.04[$):** Handles moderate motion and acquisition artifacts[cite: 1].
-* **RoCBAM-Net-A3 ($\sigma \in [0.04, 0.06]$):** Maintains spatial consistency ($\text{Dice} > 0.71$) under severe degradation[cite: 1].
+* **RoCBAM-Net-A1 ($\sigma \in [0.00, 0.02[$):** Preserves high-frequency vascular boundaries on standard scans ($\text{Dice} \approx 0.78$).
+* **RoCBAM-Net-A2 ($\sigma \in [0.02, 0.04[$):** Handles moderate motion and acquisition artifacts.
+* **RoCBAM-Net-A3 ($\sigma \in [0.04, 0.06]$):** Maintains spatial consistency ($\text{Dice} > 0.71$) under severe degradation.
 
 #### Fail-Safe Protocol ($\sigma > 0.06$)
-Beyond $\sigma = 0.06$, spatial coherence degrades[cite: 1]. To prevent false-positive structural hallucinations, the system triggers a **fail-safe response**—outputting empty prediction masks and flagging the DICOM series for re-acquisition[cite: 1].
+Beyond $\sigma = 0.06$, spatial coherence degrades. To prevent false-positive structural hallucinations, the system triggers a **fail-safe response**—outputting empty prediction masks and flagging the DICOM series for re-acquisition.
+
+---
+
 ## 📂 Repository Structure
 
 ```text
 .
+├── assets/
+│   ├── visualisation_patient_ideal.jpg
+│   ├── 1.jpg              # Robustness evaluation chart
+│   └── 2.jpg              # Composite envelope & adaptive system chart
 ├── notebooks/
 │   ├── 01_RoCBAMNet_Clean_Sigma00.ipynb
 │   ├── 02_RoCBAMNet_Rician_Sigma03.ipynb
