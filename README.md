@@ -98,7 +98,48 @@ The visualization below illustrates the progressive noise resistance of the RoCB
 * **RoCBAM-Net-A1 (Clean):** Delivers optimal segmentation performance on baseline MRI slices ($\sigma \le 0.01$, Dice $\approx 0.944$).
 * **RoCBAM-Net-A2 ($\sigma = 0.03$):** Takes over at moderate noise levels ($\sigma = 0.02 - 0.03$), maintaining high dice scores ($\approx 0.934$) where baseline models collapse.
 * **RoCBAM-Net-A3 ($\sigma = 0.05$):** Demonstrates extreme noise invariance under severe degradation ($\sigma = 0.04 - 0.06$), maintaining high precision (Dice $\ge 0.958$).
+  
+## 🛡️ Robustness Analysis & Adaptive Clinical Strategy
 
+### Clinical Stress-Testing Across Noise Regimes ($\sigma \in [0.00, 0.06]$)
+
+Evaluating performance across 3,753 test images reveals distinct operational limits for models trained on varying noise distributions[cite: 1]:
+
+| Test Noise ($\sigma$) | RobU-Net (Clean) | RoCBAM-Net (Clean) | RobU-Net ($\sigma=0.03$) | RoCBAM-Net ($\sigma=0.03$) | RobU-Net ($\sigma=0.05$) | RoCBAM-Net ($\sigma=0.05$) |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **0.00** | 0.737 | **0.779** | 0.495 | 0.761 | 0.414 | 0.712 |
+| **0.01** | 0.694 | **0.772** | 0.549 | 0.768 | 0.365 | 0.730 |
+| **0.02** | 0.606 | 0.648 | **0.759** | **0.759** | 0.322 | 0.739 |
+| **0.03** | 0.572 | 0.543 | 0.744 | **0.765** | 0.595 | 0.768 |
+| **0.04** | 0.121 | 0.334 | 0.254 | 0.730 | 0.768 | **0.771** |
+| **0.05** | 0.055 | 0.297 | 0.090 | 0.254 | 0.739 | **0.768** |
+| **0.06** | 0.059 | 0.284 | 0.091 | 0.219 | 0.335 | **0.712** |
+
+<p align="center">
+  <img src="assets/1.jpg" alt="Robustness Analysis RoCBAM-Net vs Baseline" width="90%">
+</p>
+
+#### Core Insights:
+1. **Clean-Model Degradation:** Clean-trained models experience structural degradation beyond $\sigma = 0.02$, collapsing near $\sigma = 0.04$[cite: 1].
+2. **High-Noise Generalization:** Models trained under severe noise ($\sigma = 0.05$) preserve clinical utility ($\text{Dice} > 0.70$) across an extended spectrum ($\sigma \in [0.04, 0.06]$)[cite: 1].
+3. **Architectural Resilience:** At extreme degradation ($\sigma = 0.04$), clean RobU-Net drops to $0.121$, whereas RoCBAM-Net ($\sigma = 0.05$) retains $0.768$ Dice[cite: 1].
+
+---
+
+### Dynamic Multi-Model Routing & Clinical Safety Guardrail
+
+No single model maintains optimal spatial accuracy across all acquisition qualities[cite: 1]. An automated routing system dynamically switches inference modules based on an estimated noise parameter $\sigma_{\text{est}}$[cite: 1]:
+
+<p align="center">
+  <img src="assets/2.jpg" alt="Adaptive Global System and Robustness Envelope" width="90%">
+</p>
+
+* **RoCBAM-Net-A1 ($\sigma \in [0.00, 0.02[$):** Preserves high-frequency vascular boundaries on standard scans ($\text{Dice} \approx 0.78$)[cite: 1].
+* **RoCBAM-Net-A2 ($\sigma \in [0.02, 0.04[$):** Handles moderate motion and acquisition artifacts[cite: 1].
+* **RoCBAM-Net-A3 ($\sigma \in [0.04, 0.06]$):** Maintains spatial consistency ($\text{Dice} > 0.71$) under severe degradation[cite: 1].
+
+#### Fail-Safe Protocol ($\sigma > 0.06$)
+Beyond $\sigma = 0.06$, spatial coherence degrades[cite: 1]. To prevent false-positive structural hallucinations, the system triggers a **fail-safe response**—outputting empty prediction masks and flagging the DICOM series for re-acquisition[cite: 1].
 ## 📂 Repository Structure
 
 ```text
