@@ -142,13 +142,9 @@ Beyond $\sigma = 0.06$, spatial coherence degrades. To prevent false-positive st
 ```text
 .
 ├── assets/
-│   ├── visualisation_patient_ideal.jpg
-│   ├── 1.jpg              # Robustness evaluation chart
-│   └── 2.jpg              # Composite envelope & adaptive system chart
-├── notebooks/
-│   ├── 01_RoCBAMNet_Clean_Sigma00.ipynb
-│   ├── 02_RoCBAMNet_Rician_Sigma03.ipynb
-│   └── 03_RoCBAMNet_Rician_Sigma05.ipynb
+│   ├── visualisation_patient_ideal.png
+│   ├── 1.png              # Robustness evaluation chart
+│   └── 2.png              # Composite envelope & adaptive system chart
 ├── models/
 │   ├── roc_bam_net.py     # RoCBAM-Net architecture & CBAM attention modules
 │   └── losses.py          # WeightedBCEDiceLoss (w=50, eps=1e-6) & get_dice metric
@@ -157,5 +153,5 @@ Beyond $\sigma = 0.06$, spatial coherence degrades. To prevent false-positive st
 ├── train.py               # Main training script with ReduceLROnPlateau & Early Stopping
 ├── evaluate.py            # Evaluation script for Test Dice computation
 ├── requirements.txt       # Project dependencies
-├── .gitignore             # Excludes large binaries (.pth, data)
+├── .gitignore             # Excludes large binaries (.pth, raw data)
 └── README.md              # Project documentation
