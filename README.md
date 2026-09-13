@@ -83,7 +83,7 @@ Where $p_i \in [0, 1]$ represents the predicted probability, $t_i \in \{0, 1\}$ 
 The visualization below illustrates the progressive noise resistance of the RoCBAM-Net variants across increasing levels of Rician noise corruption ($\sigma = 0.00$ to $\sigma = 0.06$):
 
 <p align="center">
-  <img src="assets/visualisation_patient_ideal.jpg" alt="RoCBAM-Net Qualitative Segmentation Results" width="85%">
+  <img src="assets/visualisation_patient_ideal.png" alt="RoCBAM-Net Qualitative Segmentation Results" width="85%">
 </p>
 
 ### Key Observations:
@@ -110,7 +110,7 @@ Evaluating performance across 3,753 test images reveals distinct operational lim
 | **0.06** | 0.059 | 0.284 | 0.091 | 0.219 | 0.335 | **0.712** |
 
 <p align="center">
-  <img src="assets/1.jpg" alt="Robustness Analysis RoCBAM-Net vs Baseline" width="90%">
+  <img src="assets/1.png" alt="Robustness Analysis RoCBAM-Net vs Baseline" width="90%">
 </p>
 
 #### Core Insights:
@@ -125,7 +125,7 @@ Evaluating performance across 3,753 test images reveals distinct operational lim
 No single model maintains optimal spatial accuracy across all acquisition qualities. An automated routing system dynamically switches inference modules based on an estimated noise parameter $\sigma_{\text{est}}$:
 
 <p align="center">
-  <img src="assets/2.jpg" alt="Adaptive Global System and Robustness Envelope" width="90%">
+  <img src="assets/2.png" alt="Adaptive Global System and Robustness Envelope" width="90%">
 </p>
 
 * **RoCBAM-Net-A1 ($\sigma \in [0.00, 0.02[$):** Preserves high-frequency vascular boundaries on standard scans ($\text{Dice} \approx 0.78$).
