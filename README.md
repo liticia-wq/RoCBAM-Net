@@ -91,7 +91,7 @@ Where $p_i \in [0, 1]$ represents the predicted probability, $t_i \in \{0, 1\}$ 
 The visualization below illustrates the progressive noise resistance of the RoCBAM-Net variants across increasing levels of Rician noise corruption ($\sigma = 0.00$ to $\sigma = 0.06$):
 
 <p align="center">
-  <img src="assets/visualisation_patient_ideal.jpg" alt="RoCBAM-Net Qualitative Segmentation Results" width="85%">
+  <img src="assets/visualisation_patient_ideal.png" alt="RoCBAM-Net Qualitative Segmentation Results" width="85%">
 </p>
 
 ### Key Observations:
