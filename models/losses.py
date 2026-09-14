@@ -2,46 +2,34 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import torch.nn.functional as F
+
 class WeightedBCEDiceLoss(nn.Module):
-    """
-    Fonction de perte hybride pour le modèle RoCBAM-Net sur le dataset BreastDM.
-    Combine une Entropie Croisée Binaire pondérée (L_wBCE) avec un poids w=50
-    et une Perte de Dice (L_Dice) avec un terme de lissage epsilon=1e-6.
-    """
-    def __init__(self, weight=50.0, smooth=1e-6):
-        super(WeightedBCEDiceLoss, self).__init__()
+    def __init__(self, weight=50.0):
+        super().__init__()
         self.weight = weight
-        self.smooth = smooth
 
-    def forward(self, inputs, targets):
-        # Conversion des logits en probabilités p_i via Sigmoid
-        probs = torch.sigmoid(inputs)
-        
-        # 1. Calcul de la perte Weighted BCE (L_wBCE)
-        # Formule : L_wBCE = - (1/N) * sum( w * t_i * log(p_i) + (1 - t_i) * log(1 - p_i) )
-        bce_loss = -(
-            self.weight * targets * torch.log(probs + 1e-7) + 
-            (1.0 - targets) * torch.log(1.0 - probs + 1e-7)
-        )
-        l_wbce = torch.mean(bce_loss)
+    def forward(self, p, t):
+        # 1. Calcul de la BCE standard
+        # On utilise une petite valeur (epsilon) pour éviter les log(0)
+        bce = F.binary_cross_entropy(p, t, reduction='none')
 
-        # 2. Calcul de la perte de Dice (L_Dice)
-        # Formule : L_Dice = 1 - (2 * sum(p_i * t_i) + eps) / (sum(p_i) + sum(t_i) + eps)
-        intersection = torch.sum(probs * targets)
-        cardinality = torch.sum(probs) + torch.sum(targets)
-        l_dice = 1.0 - ((2.0 * intersection + self.smooth) / (cardinality + self.smooth))
+        # 2. On applique le poids manuellement sur les pixels positifs (la tumeur)
+        # Cela force le modèle à ne pas ignorer les petites zones blanches
+        weighted_bce = bce * (1 + t * (self.weight - 1))
+        bce_loss = weighted_bce.mean()
 
-        # 3. Perte Totale : L_total = L_wBCE + L_Dice
-        return l_wbce + l_dice
+        # 3. Calcul du Dice Loss (1 - Dice Score)
+        inter = (p * t).sum()
+        dice_coeff = (2. * inter + 1e-6) / (p.sum() + t.sum() + 1e-6)
+        dice_loss = 1 - dice_coeff
 
-def get_dice(inputs, targets, smooth=1e-6):
-    """
-    Calcule le coefficient de similitude Dice (DSC) binaire pour l'évaluation.
-    """
-    probs = torch.sigmoid(inputs)
-    preds = (probs > 0.5).float()
-    
-    intersection = torch.sum(preds * targets)
-    cardinality = torch.sum(preds) + torch.sum(targets)
-    
-    return ((2.0 * intersection + smooth) / (cardinality + smooth))
+        # Somme des deux pertes
+        return bce_loss + dice_loss
+
+def get_dice(p, t):
+    # On seuille à 0.5 pour transformer les probabilités en masque binaire
+    p = (p > 0.5).float()
+    inter = (p * t).sum()
+    return (2. * inter + 1e-6) / (p.sum() + t.sum() + 1e-6)
+
